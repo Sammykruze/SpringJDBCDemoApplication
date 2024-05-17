@@ -3,9 +3,11 @@ package com.samCode.SpringJDBCDemo.repository;
 import com.samCode.SpringJDBCDemo.model.Alien;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 @Repository
 public class AlienRepo {
@@ -21,12 +23,24 @@ public class AlienRepo {
     }
 
     public void save(Alien alien){
-        String sql = "Insert into alien (id, name, tech) values (?,?,?)";
-        int rows = template.update(sql, alien.getId(), alien.getName(), alien.getTech());
-        System.out.println(rows + "Rows affected");
+        String sql = "insert into alien (id, name, tech) values (?,?,?)";
+        int row = template.update(sql, alien.getId(), alien.getName(), alien.getTech());
+        System.out.println(row + "row/s affected");
     }
 
     public List<Alien> findAll(){
-        return new ArrayList<Alien>();
+        String sql = "select * from alien";
+
+        RowMapper<Alien> mapper = ( rs, rowNum) -> {
+                Alien a = new Alien();
+                a.setId(rs.getInt(1));
+                a.setName(rs.getString(2));
+                a.setTech(rs.getString(3));
+
+                return a;
+
+        };
+        List<Alien> aliens = template.query(sql, mapper);
+        return aliens;
     }
 }
